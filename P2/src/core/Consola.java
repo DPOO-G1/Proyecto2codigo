@@ -22,7 +22,7 @@ public class Consola {
 		usuarios = Controller.cargarPersistenciaUsuarios();
 		mapaLearningPaths = Controller.cargarPersistenciaLearningPaths(usuarios);	
 		
-		PersistenciaActividades.cargarActividades(mapaLearningPaths);
+		//PersistenciaActividades.cargarActividades(mapaLearningPaths);
 		//(PersistenciaInscripciones.cargarInscripciones(usuarios, mapaLearningPaths);
 		menu();
 	}
@@ -90,7 +90,7 @@ public class Consola {
                     int opcion = scanner.nextInt();
                     scanner.nextLine();
                     if (opcion==1) {
-                    	Controller.inscribirseLearningPath(mapaLearningPaths,usuario,scanner);
+                    	Controller.inscribirseLearningPath(usuarios,mapaLearningPaths,usuario,scanner);
                          
                     }
                     else if(opcion==2) {
@@ -146,8 +146,8 @@ public class Consola {
                             	if (tienePreReq == 1) {
                             		Controller.añadirPreq(learningpath, recurso, scanner);
                             	}
-                            	Controller.guardarRecursoCSV(password, recurso);
-                            	learningpath.addActividad(recurso);
+                            	Controller.guardarActividad(mapaLearningPaths,learningpath, recurso);
+                       
                             	for(int i = 0; i<learningpath.getActividades().size();i++) {
 	                    			
 	                				System.out.println(learningpath.getActividades().get(i).getDescripcion());
@@ -171,8 +171,7 @@ public class Consola {
                             	if (tienePreReq == 1) {
                             		Controller.añadirPreq(learningpath, quiz, scanner);
                             	}
-                            	//Controller.guardarQuiz(learningpath.getTitulo(), quiz);
-                            	learningpath.addActividad(quiz);
+                            	Controller.guardarActividad(mapaLearningPaths,learningpath, quiz);
 	                    		for(int i = 0; i<learningpath.getActividades().size();i++) {
 	                    			
 	                				System.out.println(learningpath.getActividades().get(i).getDescripcion());
@@ -183,7 +182,7 @@ public class Consola {
                     
 		                    else if (tipoActividad == 4) {
 		                            	Examen examen = Controller.crearExamen(scanner);	                    	
-		                            	learningpath.addActividad(examen);
+		                            	
 
 		                            	System.out.print("Tiene Actividades Prerrequisito (1)Si (0)No: ");
 		                            	int tienePreReq = scanner.nextInt();
@@ -191,7 +190,7 @@ public class Consola {
 		                            	if (tienePreReq == 1) {
 		                            		Controller.añadirPreq(learningpath, examen , scanner);
 		                            	}
-		                            	//Controller.guardarExamenCSV(password, examen);
+		                            	Controller.guardarActividad(mapaLearningPaths,learningpath, examen);
 		                            	learningpath.addActividad(examen);
 		                            	for(int i = 0; i<learningpath.getActividades().size();i++) {
 			                    			
@@ -209,7 +208,7 @@ public class Consola {
                             	if (tienePreReq == 1) {
                             		Controller.añadirPreq(learningpath, encuesta, scanner);
                             	}
-                            	//Controller.guardarQuiz(learningpath.getTitulo(), quiz);
+                            	Controller.guardarActividad(mapaLearningPaths,learningpath, encuesta);
                             	learningpath.addActividad(encuesta);
 	                    		for(int i = 0; i<learningpath.getActividades().size();i++) {
 	                    			
@@ -227,7 +226,7 @@ public class Consola {
                  }
 
         }else {
-            System.out.println("1. Volver a intentar/n"
+            System.out.println("1. Volver a intentar\n"
             		+ "2. Devolver a menu anterior");
             int opcion =(int) scanner.nextInt();
             switch(opcion) {

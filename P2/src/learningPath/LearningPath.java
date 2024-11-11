@@ -3,16 +3,19 @@ package learningPath;
 import java.util.Date;
 import actividades.Actividad;
 import actividades.Recurso;
+import usuarios.Usuario;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LearningPath {
+public class LearningPath implements Serializable {
 	String titulo;
 	String descripcion;
 	String objetivos;
 	String nivelDificultad;
+	Usuario profesor;
 	int duracion;
 	Double rating;
 	List<Actividad> actividades;
@@ -21,7 +24,7 @@ public class LearningPath {
 	
 	
 	
-	public LearningPath(String titulo, String descripcion, String objetivos, String nivelDificultad) {
+	public LearningPath (String titulo, String descripcion, String objetivos, String nivelDificultad) {
 		super();
 		this.titulo = titulo;
 		this.descripcion = descripcion;
@@ -32,6 +35,18 @@ public class LearningPath {
 		this.actividades = new ArrayList<>();
 		this.fechaCreacion = LocalDate.now();
 		this.fechaUltModificacion = LocalDate.now();
+	}
+
+
+
+	public Usuario getProfesor() {
+		return profesor;
+	}
+
+
+
+	public void setProfesor(Usuario profesor) {
+		this.profesor = profesor;
 	}
 
 

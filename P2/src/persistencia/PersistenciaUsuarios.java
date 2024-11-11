@@ -1,71 +1,75 @@
 package persistencia;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-
 import usuarios.Estudiante;
 import usuarios.Profesor;
 import usuarios.Usuario;
 
 public class PersistenciaUsuarios {
-    
-    public static void guardarUsuarioEnCSV(String nombre, String correo, String password, String tipoUsuario) {
-        try (FileWriter writer = new FileWriter("usuarios.csv", true)) {
-      
-            writer.append(nombre).append(",").append(correo).append(",").append(password).append(",").append(tipoUsuario).append("\n");
+
+    private static final String FILE_NAME = "usuarios.ser";
+
+    public static void guardarUsuarios(Map<String, Usuario> usuarios) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            out.writeObject(usuarios);
+            System.out.println("Usuarios guardados exitosamente.");
         } catch (IOException e) {
-            System.out.println("Ocurrió un error al guardar el usuario.");
+            System.out.println("Ocurrió un error al guardar los usuarios.");
             e.printStackTrace();
         }
     }
 
-    public static Map<String, Usuario> cargarUsuariosDeCSV() {
+    @SuppressWarnings("unchecked")
+    public static Map<String, Usuario> cargarUsuarios() {
         Map<String, Usuario> usuarios = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("usuarios.csv"))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-  
-                String[] datos = linea.split(",");
-                String nombre = datos[0];
-                String correo = datos[1];
-                String password = datos[2];
-                String tipoUsuario = datos[3];
+        
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            System.out.println("Archivo de usuarios no encontrado.");
+            System.out.println("Desea crear un archivo vacío?\n1. Si\n2. No");
+            Scanner scanner = new Scanner(System.in);
+            int opcion = scanner.nextInt();
+            scanner.nextLine(); // Clear the newline character
 
-   
-                if (tipoUsuario.equals("Estudiante")) {
-                    usuarios.put(correo, new Estudiante(nombre, correo, password));
-                } else if (tipoUsuario.equals("Profesor")) {
-                    usuarios.put(correo, new Profesor(nombre, correo, password));
-                }
+            if (opcion == 1) {
+               
+                guardarUsuarios(usuarios);
+                System.out.println("Archivo de usuarios vacío creado exitosamente: " + FILE_NAME);
+            } else {
+                System.out.println("No se creará ningún archivo.");
             }
-        } catch (IOException e) {
-			System.out.println("Ocurrió un error al cargar los usuarios.");
-	        System.out.println("Desea crear un archivo?\n1. Si\n2. No");
-	        Scanner scanner = new Scanner(System.in);
-	        int opcion = scanner.nextInt();
-	        scanner.nextLine(); // Clear the newline character
 
-	        if (opcion == 1) {
-	            // Create an empty CSV file
-	            String fileName = "usuarios.csv";
-	            try (FileWriter writer = new FileWriter(fileName)) {
-	                System.out.println("Archivo CSV vacío creado exitosamente: " + fileName);
-	            } catch (IOException e1) {
-	                System.out.println("Error al crear el archivo CSV.");
-	                e.printStackTrace();
-	            }
-	        } else {
-	            System.out.println("No se creará ningún archivo.");
-	        }
+            scanner.close();
+            return usuarios;
+        }
 
-	        scanner.close();
-	    }
-     
+        
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            usuarios = (Map<String, Usuario>) in.readObject();
+            System.out.println("Usuarios cargados exitosamente.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Ocurrió un error al cargar los usuarios.");
+            e.printStackTrace();
+        }
+        
         return usuarios;
+    }
+
+    // Optional: method to add a single user and save the entire map
+    public static void agregarUsuario(String nombre, String correo, String password, String tipoUsuario, Map<String, Usuario> usuarios) {
+        Usuario usuario;
+        if (tipoUsuario.equals("Estudiante")) {
+            usuario = new Estudiante(nombre, correo, password);
+        } else if (tipoUsuario.equals("Profesor")) {
+            usuario = new Profesor(nombre, correo, password);
+        } else {
+            System.out.println("Tipo de usuario no reconocido.");
+            return;
+        }
+        usuarios.put(correo, usuario);
+        guardarUsuarios(usuarios); // Save the updated map
     }
 }

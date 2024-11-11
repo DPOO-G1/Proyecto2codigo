@@ -33,15 +33,19 @@ public class Controller {
 	public static void crearUsuario(Map<String, Usuario> usuarios,String nombre, String correo, String password, int tipo){
 			
 		
-		if(!usuarios.containsKey(correo)) {
+		if(tipo==1)
+			if(!usuarios.containsKey(correo)) {
     		usuarios.put(correo, new Estudiante(nombre, correo, password));
-            PersistenciaUsuarios.guardarUsuarioEnCSV(nombre, correo, password, "Estudiante");
+    		PersistenciaUsuarios.guardarUsuarios(usuarios);
             System.out.println("Estudiante registrado con éxito.");
-    	}
+			}else{
+        		System.out.print("El correo ya se encuentra registrado!");
+        }
+			
 		else if (tipo == 2) {
         	if(!usuarios.containsKey(correo)) {
         		usuarios.put(correo, new Profesor(nombre,correo, password));
-                PersistenciaUsuarios.guardarUsuarioEnCSV(nombre, correo, password, "Profesor");
+                PersistenciaUsuarios.guardarUsuarios(usuarios);
                 System.out.println("Profesor registrado con éxito.");
         	}
         	else {
@@ -59,7 +63,7 @@ public class Controller {
 
 	public static Map<String,Usuario> cargarPersistenciaUsuarios() {
 	
-	return (HashMap<String, Usuario>) PersistenciaUsuarios.cargarUsuariosDeCSV();
+	return (HashMap<String, Usuario>) PersistenciaUsuarios.cargarUsuarios();
 	
 	}
 
@@ -71,13 +75,16 @@ public class Controller {
 	
 	}
 		
-	public static void añadirLearningPath(Map<String, LearningPath> mapaLearningPaths, String tituloLP,Usuario usuario) {
+	public static void añadirLearningPath(Map<String,Usuario> mapaUsuarios,Map<String, LearningPath> mapaLearningPaths, String tituloLP,Usuario usuario) {
 	 
 	if (mapaLearningPaths.containsKey(tituloLP)) {
          LearningPath learningPath = (LearningPath) mapaLearningPaths.get(tituloLP);
          ((Estudiante) usuario).addLearningPath(learningPath);
-         
-     } else {
+         String correo = usuario.getCorreo();
+         mapaUsuarios.put(correo, usuario);
+         persistencia.PersistenciaUsuarios.guardarUsuarios(mapaUsuarios);
+     
+	} else {
          System.out.println("El Learning Path con título '" + tituloLP + "' no está disponible.");
      }
 	}
@@ -100,17 +107,22 @@ public class Controller {
 		}
 	}
 
-	public static void guardarRecursoCSV(String titulo, Recurso recurso) {
-		PersistenciaActividades.guardarRecursosCSV(titulo, recurso);
-
+	
+	public static void guardarActividad(Map<String, LearningPath> mapaLearningPaths,LearningPath learningpath, Actividad actividad) {
+		learningpath.addActividad(actividad);
+		String titulo =learningpath.getTitulo();
+		//Se actualiza el learningpath
+		mapaLearningPaths.put(titulo, learningpath);
+		PersistenciaLearningPaths.guardarLearningPaths(mapaLearningPaths);
+		System.out.print("La actividad ha sido guardada con exito");
 	}
 	
 	//Metodos Estudiante
-	public static void inscribirseLearningPath(Map<String, LearningPath> mapaLearningPaths, Usuario usuario, Scanner scanner) {
+	public static void inscribirseLearningPath(Map<String,Usuario> mapaUsuarios, Map<String, LearningPath> mapaLearningPaths, Usuario usuario, Scanner scanner) {
     	((Estudiante) usuario).mostrarLearningPathsDisponibles(mapaLearningPaths);
     	 System.out.print("Ingrese el título del Learning Path para inscribirse: ");
          String tituloLP = scanner.nextLine();
-         Controller.añadirLearningPath(mapaLearningPaths, tituloLP, usuario);
+         Controller.añadirLearningPath(mapaUsuarios, mapaLearningPaths, tituloLP, usuario);
 
 	}
 
@@ -120,26 +132,29 @@ public class Controller {
 	
 	}
 
-	public static void mostrarActividadesLearningPath(Usuario usuario,Scanner scanner) {
-		((Estudiante) usuario).mostrarLearningPathsInscritos();
+	public static void mostrarActividadesLearningPath(Usuario usuario, Scanner scanner) {
+	    ((Estudiante) usuario).mostrarLearningPathsInscritos();
 
-		try {
-			System.out.println("Escoja el Learning Path del que quiere ver las actividades: ");
-			int lp = scanner.nextInt();
-			scanner.nextLine();
-			LearningPath lpSeleccionado = ((Estudiante) usuario).getLearningPaths().get(lp-1);
-		
-			lpSeleccionado.mostrarActividades();
-			}catch(InputMismatchException e) {
-				System.out.print("Escriba un numero");
-				mostrarActividadesLearningPath(usuario, scanner);
-		
-			}catch (IndexOutOfBoundsException e) {
-				System.out.println("El número ingresado no corresponde a un Learning Path válido.");
-				mostrarActividadesLearningPath(usuario, scanner);
-			}	
-		}
+	    boolean validInput = false;
+	    while (!validInput) {
+	        try {
+	            System.out.println("Escoja el Learning Path del que quiere ver las actividades: ");
+	            int lp = scanner.nextInt();
+	            scanner.nextLine(); 
 
+	            LearningPath lpSeleccionado = ((Estudiante) usuario).getLearningPaths().get(lp - 1);
+	            lpSeleccionado.mostrarActividades();
+	            validInput = true; 
+
+	        } catch (InputMismatchException e) {
+	            System.out.println("Error: escriba un número válido.");
+	            scanner.nextLine(); 
+
+	        } catch (IndexOutOfBoundsException e) {
+	            System.out.println("El número ingresado no corresponde a un Learning Path válido.");
+	        }
+	    }
+	}
 
 
 
@@ -218,8 +233,8 @@ public class Controller {
     	LearningPath learningpath = ((Profesor) usuario).crearLearningPath(titulo,descripcion,objetivos,nivelDificultad);
     	             	
     	((Profesor) usuario).addLearningPath(learningpath);
-    	persistencia.PersistenciaLearningPaths.guardarLearningPath(learningpath,usuario.getCorreo());
-    	mapaLearningPaths.put(titulo,learningpath);
+    	mapaLearningPaths.put(titulo, learningpath);
+    	persistencia.PersistenciaLearningPaths.guardarLearningPaths(mapaLearningPaths);
     	System.out.print("Learning Path guardado exitosamente");
 	}
 
@@ -241,31 +256,56 @@ public class Controller {
 		return null;
 	}
 	
-	public static Recurso crearRecurso(Scanner scanner){
-		System.out.print("Ingrese la descripción: ");
-    	String descripcion = scanner.nextLine();
-    	System.out.print("Ingrese el objetivo: ");
-    	String objetivo = scanner.nextLine();
-    	System.out.print("Ingrese el nivel de dificultad: ");
-    	String nivelDificultad = scanner.nextLine();
-    	System.out.print("Ingrese la duración esperada en minutos: ");
-    	int duracion = scanner.nextInt();
-    	scanner.nextLine();
-    	System.out.print("Ingrese la fecha límite sugerida (yyyy-mm-dd): ");
-    	String fechaLim = scanner.nextLine();
-    	System.out.print("Es obligatoria (1:Si | 0:NO): ");
-    	int obligatoria = scanner.nextInt();
-    	scanner.nextLine();
-    	System.out.print("Ingrese el tipo de recurso: ");
-    	String tipoRecurso = scanner.nextLine();
-		
-    	boolean esObligatoria = opcional(obligatoria);
-    	Date fechaLimite = convertirStringADate(fechaLim);
-    	
-    	Recurso recurso = new Recurso(descripcion, objetivo, nivelDificultad, duracion, fechaLimite, esObligatoria,tipoRecurso);
-    	
-    	return recurso;
-	}
+	public static Recurso crearRecurso(Scanner scanner) {
+        String descripcion = "";
+        String objetivo = "";
+        String nivelDificultad = "";
+        int duracion = 0;
+        String fechaLim = "";
+        int obligatoria = 0;
+        String tipoRecurso = "";
+
+        boolean validInput = false;
+        while (!validInput) {
+            try {
+                System.out.print("Ingrese la descripción: ");
+                descripcion = scanner.nextLine();
+
+                System.out.print("Ingrese el objetivo: ");
+                objetivo = scanner.nextLine();
+
+                System.out.print("Ingrese el nivel de dificultad: ");
+                nivelDificultad = scanner.nextLine();
+
+                System.out.print("Ingrese la duración esperada en minutos: ");
+                duracion = scanner.nextInt();
+                scanner.nextLine();
+
+                System.out.print("Ingrese la fecha límite sugerida (yyyy-mm-dd): ");
+                fechaLim = scanner.nextLine();
+
+                System.out.print("Es obligatoria (1:Si | 0:NO): ");
+                obligatoria = scanner.nextInt();
+                scanner.nextLine();
+
+                System.out.print("Ingrese el tipo de recurso: ");
+                tipoRecurso = scanner.nextLine();
+
+                validInput = true; 
+
+            } catch (InputMismatchException e) {
+                System.out.println("Error: se esperaba un número. Intente de nuevo.");
+                scanner.nextLine(); 
+            }
+        }
+
+     
+        boolean esObligatoria = opcional(obligatoria);
+        Date fechaLimite = convertirStringADate(fechaLim);
+
+        return new Recurso(descripcion, objetivo, nivelDificultad, duracion, fechaLimite, esObligatoria, tipoRecurso);
+    }
+
 
 	
 	public static Quiz crearQuiz(Scanner scanner) {

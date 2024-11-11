@@ -1,104 +1,98 @@
 package persistencia;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.*;
+import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-import actividades.Actividad;
 import learningPath.LearningPath;
 import usuarios.Profesor;
 import usuarios.Usuario;
-import java.time.LocalDate;
 
 public class PersistenciaLearningPaths {
-		
-	public static void guardarLearningPath(LearningPath learningPath, String correo) {
-		try (FileWriter writer = new FileWriter("learningPaths.csv", true)) {
-		      
-            writer.append(correo)
-            .append(",").append(learningPath.getTitulo())
-            .append(",").append(learningPath.getDescripcion())
-            .append(",").append(learningPath.getObjetivos())
-            .append(",").append(learningPath.getNivelDificultad())
-            .append(",").append((learningPath.getFechaCreacion()).toString())
-            .append(",").append((learningPath.getFechaUltModificacion()).toString())
-            .append("\n");
-            
+
+    private static final String FILE_NAME = "learningPaths.ser";
+
+    // Save the entire map of learning paths to the file
+    public static void guardarLearningPaths(Map<String, LearningPath> mapaLearningPaths) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            out.writeObject(mapaLearningPaths);
+            System.out.println("Learning paths guardados exitosamente.");
         } catch (IOException e) {
-            System.out.println("Ocurrió un error al el LearningPath.");
+            System.out.println("Ocurrió un error al guardar los learning paths.");
             e.printStackTrace();
         }
-	}
-	
-	public static Map<String, LearningPath> cargarLearningPaths(Map<String, Usuario> usuarios) {
-		Map<String, LearningPath> mapaLearningPaths = new HashMap<>();
-		try (BufferedReader reader = new BufferedReader(new FileReader("learningPaths.csv"))) {
-			
-			String linea;
-            while ((linea = reader.readLine()) != null) {
-  
-                String[] datos = linea.split(",");
-                String correo = datos[0];
-                String titulo = datos[1];
-                String descripcion = datos[2];
-                String objetivos = datos[3];
-                String nivelDificultad = datos[4];
-                LocalDate fechaCreacion = convertirFecha(datos[5]);
-                LocalDate fechaUltModificacion = convertirFecha(datos[6]);
-                LearningPath learningPath = new LearningPath(titulo,descripcion,objetivos,nivelDificultad);
-                learningPath.setFechaCreacion(fechaCreacion);
-                learningPath.setFechaCreacion(fechaUltModificacion);
-                
-                mapaLearningPaths.put(titulo, learningPath);
-                
-                Usuario profesor = (Profesor)usuarios.get(correo);
-                
-                ((Profesor) profesor).addLearningPath(learningPath);
-                
+    }
+
+    // Load the map of learning paths from the file
+    @SuppressWarnings("unchecked")
+    public static Map<String, LearningPath> cargarLearningPaths(Map<String, Usuario> usuarios) {
+        Map<String, LearningPath> mapaLearningPaths = new HashMap<>();
+        File file = new File(FILE_NAME);
+
+        // Check if the file exists; if not, offer to create it
+        if (!file.exists()) {
+            System.out.println("Archivo de learning paths no encontrado.");
+            System.out.println("Desea crear un archivo vacío?\n1. Si\n2. No");
+            Scanner scanner = new Scanner(System.in);
+            int opcion = scanner.nextInt();
+            scanner.nextLine(); // Clear the newline character
+
+            if (opcion == 1) {
+                guardarLearningPaths(mapaLearningPaths); // Save an empty map to create the file
+                System.out.println("Archivo de learning paths vacío creado exitosamente: " + FILE_NAME);
+            } else {
+                System.out.println("No se creará ningún archivo.");
             }
-        } 
-		catch (IOException e) {
-			System.out.println("Ocurrió un error al cargar los learning paths.");
-	        System.out.println("Desea crear un archivo?\n1. Si\n2. No");
-	        Scanner scanner = new Scanner(System.in);
-	        int opcion = scanner.nextInt();
-	        scanner.nextLine(); 
+            scanner.close();
+            return mapaLearningPaths; // Return an empty map if the file was not created
+        }
 
-	        if (opcion == 1) {
-	          
-	            String fileName = "learningPaths.csv";
-	            try (FileWriter writer = new FileWriter(fileName)) {
-	                System.out.println("Archivo CSV vacío creado exitosamente: " + fileName);
-	            } catch (IOException e1) {
-	                System.out.println("Error al crear el archivo CSV.");
-	                e.printStackTrace();
-	            }
-	        } else {
-	            System.out.println("No se creará ningún archivo.");
-	        }
-	        scanner.close();
-	    }
-        
-		return mapaLearningPaths;
+        // Load existing learning paths from the file
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            mapaLearningPaths = (Map<String, LearningPath>) in.readObject();
+            System.out.println("Learning paths cargados exitosamente.");
 
-	
-	}
-	public static LocalDate convertirFecha(String fecha) {
-		
-        LocalDate fechaConvertida = LocalDate.parse(fecha);
-		return fechaConvertida;
-		
-		
-	}
-	
-	
+            // Associate loaded learning paths with their corresponding profesores
+            for (Map.Entry<String, LearningPath> entry : mapaLearningPaths.entrySet()) {
+                LearningPath learningPath = entry.getValue();
+                Usuario correo = learningPath.getProfesor();
+                
+                Usuario profesor = usuarios.get(correo);
+                if (profesor instanceof Profesor) {
+                    ((Profesor) profesor).addLearningPath(learningPath);
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Ocurrió un error al cargar los learning paths.");
+            e.printStackTrace();
+        }
+
+        return mapaLearningPaths;
+    }
+
+    // Add a single learning path to the map and save the updated map to the file
+    public static void agregarLearningPath(LearningPath learningPath, String correo, Map<String, Usuario> usuarios) {
+        // Load existing learning paths from the file
+        Map<String, LearningPath> mapaLearningPaths = cargarLearningPaths(usuarios);
+
+        // Associate the learning path with the professor
+        Usuario profesor = usuarios.get(correo);
+        if (profesor instanceof Profesor) {
+            ((Profesor) profesor).addLearningPath(learningPath);
+            learningPath.setProfesor(profesor);
+            mapaLearningPaths.put(learningPath.getTitulo(), learningPath);
+
+            // Save the updated map back to the file
+            guardarLearningPaths(mapaLearningPaths);
+            System.out.println("Learning path añadido y guardado exitosamente.");
+        } else {
+            System.out.println("El usuario con el correo proporcionado no es un profesor.");
+        }
+    }
+
+    // Utility method to convert a String date to LocalDate
+    public static LocalDate convertirFecha(String fecha) {
+        return LocalDate.parse(fecha);
+    }
 }
