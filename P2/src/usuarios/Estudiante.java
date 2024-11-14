@@ -11,11 +11,13 @@ import learningPath.LearningPath;
 public class Estudiante extends Usuario {
     private List<LearningPath> learningPaths;
     private Actividad actividadActual;  // Para controlar la actividad en progreso
+    public List<Actividad> actividadesARevisar;
 
     public Estudiante(String nombre, String correo, String password) {
         super(nombre, correo, password);
         this.learningPaths = new ArrayList<>();
         this.actividadActual = null;
+        this.actividadesARevisar = new ArrayList<>();
     }
     
     @Override
@@ -68,8 +70,9 @@ public class Estudiante extends Usuario {
             System.out.println("Ya tienes una actividad en progreso. Completa esa primero.");
         } else {
             this.actividadActual = actividad;
-            actividad.iniciar();
             System.out.println("Actividad '" + actividad.getDescripcion() + "' iniciada.");
+            actividad.iniciar();
+            completarActividad();
         }
     }
 
@@ -78,6 +81,9 @@ public class Estudiante extends Usuario {
         if (actividadActual != null) {
             actividadActual.completar();
             System.out.println("Actividad '" + actividadActual.getDescripcion() + "' completada.");
+            if (actividadActual.getTipo() == "Examen") {
+            	this.actividadesARevisar.add(actividadActual);
+            }
             actividadActual = null;
         } else {
             System.out.println("No tienes ninguna actividad en progreso.");
@@ -106,6 +112,14 @@ public class Estudiante extends Usuario {
 
 	public void setActividadActual(Actividad actividadActual) {
 		this.actividadActual = actividadActual;
+	}
+
+	public List<Actividad> getActividadesARevisar() {
+		return actividadesARevisar;
+	}
+
+	public void setActividadesARevisar(List<Actividad> actividadesARevisar) {
+		this.actividadesARevisar = actividadesARevisar;
 	}
 
 }

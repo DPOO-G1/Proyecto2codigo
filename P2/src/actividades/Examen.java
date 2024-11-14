@@ -37,7 +37,7 @@ public class Examen extends Actividad {
 		try (Scanner scanner = new Scanner(System.in)) {
 			for(int i =0;i<preguntas.size();i++) {
 				PreguntaAbierta pregunta = preguntas.get(i);
-				System.out.println(pregunta);
+				System.out.println(pregunta.getCuerpo());
 				System.out.println("Escriba su respuesta: ");
 				String respuesta = scanner.nextLine();
 				this.respuestas.put(pregunta, respuesta);

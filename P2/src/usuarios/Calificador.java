@@ -1,6 +1,8 @@
 package usuarios;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import actividades.Actividad;
@@ -20,12 +22,29 @@ public class Calificador extends Usuario {
 
 	}
 	
+	public void calificarActividades(Map<String, Usuario> usuarios) {
+		for(Usuario usuario: usuarios.values()) {
+			if (usuario instanceof Estudiante) {
+				List<Actividad >lista = ((Estudiante) usuario).getActividadesARevisar();
+				
+				if (lista.size()>0) {
+					for(Actividad actividad:lista) {
+						if(actividad instanceof Examen) {
+							calificarExamen((Examen) actividad);
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
 	public void calificarExamen(Examen examen){
 		Map<PreguntaAbierta, String> respuestas = examen.getRespuestas();
 		for (Map.Entry<PreguntaAbierta, String> entry : respuestas.entrySet()) {
 		    PreguntaAbierta pregunta = entry.getKey();
 		    String respuesta = entry.getValue();
-		    System.out.println("\"" + pregunta + "\": " + respuesta);
+		    System.out.println("\"" + pregunta.getCuerpo() + "\": " + respuesta);
 		}
 		
 		ponerCalificacion(examen);
@@ -35,7 +54,7 @@ public class Calificador extends Usuario {
 	
 	public void ponerCalificacion(Actividad actividad) {
 	    Scanner scanner = new Scanner(System.in);
-	    double calificacion = -1;
+	    double calificacion = actividad.getCalificacion();
 	    
 	    while (calificacion < 0.0 || calificacion > 5.0) {
 	        System.out.print("Ingrese la calificación de la actividad (0.0 - 5.0): ");
