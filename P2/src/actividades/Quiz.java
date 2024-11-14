@@ -53,9 +53,12 @@ public class Quiz extends Actividad {
 			for(PreguntaCerrada pregunta : preguntas) {
 				System.out.println(pregunta.getCuerpo());
 				List<Opcion> opciones = pregunta.getOpciones();
+				int i = 0;
 				for(Opcion opcion:opciones) {
-					System.out.println(opcion.getExplicacion());
+					System.out.println("i "+opcion.getExplicacion());
+					i++;
 				}
+				
 			}
 		}
 		
