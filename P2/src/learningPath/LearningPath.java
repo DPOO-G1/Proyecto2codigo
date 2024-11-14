@@ -1,8 +1,6 @@
 package learningPath;
 
-import java.util.Date;
 import actividades.Actividad;
-import actividades.Recurso;
 import usuarios.Usuario;
 
 import java.io.Serializable;

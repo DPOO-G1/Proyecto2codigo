@@ -18,8 +18,6 @@ import actividades.Quiz;
 import actividades.Recurso;
 import learningPath.LearningPath;
 import persistencia.PersistenciaUsuarios;
-import persistencia.PersistenciaActividades;
-import persistencia.PersistenciaInscripciones;
 import persistencia.PersistenciaLearningPaths;
 import usuarios.Estudiante;
 import usuarios.Profesor;
@@ -117,7 +115,7 @@ public class Controller {
 		System.out.print("La actividad ha sido guardada con exito");
 	}
 	
-	//Metodos Estudiante
+	//Menu Estudiante
 	public static void inscribirseLearningPath(Map<String,Usuario> mapaUsuarios, Map<String, LearningPath> mapaLearningPaths, Usuario usuario, Scanner scanner) {
     	((Estudiante) usuario).mostrarLearningPathsDisponibles(mapaLearningPaths);
     	 System.out.print("Ingrese el título del Learning Path para inscribirse: ");

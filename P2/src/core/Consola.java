@@ -8,7 +8,6 @@ import actividades.Examen;
 import actividades.Quiz;
 import actividades.Recurso;
 import learningPath.LearningPath;
-import persistencia.PersistenciaActividades;
 import usuarios.Estudiante;
 import usuarios.Profesor;
 import usuarios.Usuario;
