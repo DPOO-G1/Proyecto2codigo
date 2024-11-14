@@ -75,15 +75,17 @@ public class PersistenciaLearningPaths {
         if (usuario instanceof Profesor) {
             ((Profesor) usuario).addLearningPath(learningPath);
             learningPath.setProfesor(usuario);
-            mapaLearningPaths.put(learningPath.getTitulo(), learningPath);
-
-            guardarLearningPaths(mapaLearningPaths);
+            if (mapaLearningPaths.get(learningPath.getTitulo())==null) {
+            	mapaLearningPaths.put(learningPath.getTitulo(), learningPath);
+            	guardarLearningPaths(mapaLearningPaths);
+            }
             System.out.println("Learning path añadido y guardado exitosamente.");
         }else if(usuario instanceof Estudiante) {
         	((Estudiante) usuario).addLearningPath(learningPath);
-        	 mapaLearningPaths.put(learningPath.getTitulo(), learningPath);
-        	
-        	
+        	if (mapaLearningPaths.get(learningPath.getTitulo())==null) {
+        		mapaLearningPaths.put(learningPath.getTitulo(), learningPath);
+        		guardarLearningPaths(mapaLearningPaths);
+        	}
         }else {
             System.out.println("Ocurrio un error");
         }

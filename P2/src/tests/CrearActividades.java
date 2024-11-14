@@ -5,7 +5,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import actividades.Encuesta;
 import actividades.Opcion;
+import actividades.PreguntaAbierta;
 import actividades.PreguntaCerrada;
 import actividades.Quiz;
 import core.Controller;
@@ -21,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class  CrearActividades{
 
     private Quiz quiz1;
+    private Encuesta encuesta1;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
@@ -57,8 +60,22 @@ public class  CrearActividades{
             PreguntaCerrada pregunta2 = new PreguntaCerrada(explicacion2, opciones2, opcionCorrecta2);
             quiz1.addPregunta(pregunta2);
 
-        } else {
-            System.out.println("Running general setup...");
+        } else if (testInfo.getDisplayName().equals("testCrearEncuesta")){
+        	String descripcion = "Encuesta sobre Java";
+            String objetivo = "Evaluar conocimientos de Java";
+            String nivelDificultad = "Principiante";
+            double duracion = 45.0;
+            Date fechaLimite = Controller.convertirStringADate("2024-12-31");
+            boolean esObligatoria = true;
+
+            // Step 2: Create a list of PreguntaAbierta objects for the survey questions
+            List<PreguntaAbierta> preguntas = new ArrayList<>();
+            preguntas.add(new PreguntaAbierta("¿Qué es Java?"));
+            preguntas.add(new PreguntaAbierta("¿Qué significa JVM?"));
+
+            // Step 3: Construct the Encuesta object using the fields defined above
+            Encuesta encuesta1 = new Encuesta(descripcion, objetivo, nivelDificultad, duracion, fechaLimite, esObligatoria, preguntas);
+
            
         }
     }
@@ -106,5 +123,6 @@ public class  CrearActividades{
         assertEquals(quiz1.getPreguntas().size(), quizPrueba.getPreguntas().size());
  
 	}
+    void 
 }
 
