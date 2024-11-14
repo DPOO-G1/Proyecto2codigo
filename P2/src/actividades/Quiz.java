@@ -49,7 +49,15 @@ public class Quiz extends Actividad {
 
 	@Override
 	public void iniciar() {
-		// TODO Auto-generated method stub
+		if(preguntas.size()>1) {
+			for(PreguntaCerrada pregunta : preguntas) {
+				System.out.println(pregunta.getCuerpo());
+				List<Opcion> opciones = pregunta.getOpciones();
+				for(Opcion opcion:opciones) {
+					System.out.println(opcion.getExplicacion());
+				}
+			}
+		}
 		
 	}
 	

@@ -31,6 +31,8 @@ public abstract class Actividad implements Serializable{
 	
 	List<Double> ratings;
 	
+	double calificacion;
+	
 	double ratingProm;
 	
 	public Actividad(String tipo,String descripcion, String objetivo, String nivelDificultad, double duracion,
@@ -49,6 +51,7 @@ public abstract class Actividad implements Serializable{
 		this.reseñas = new ArrayList<>();
 		this.ratings = new ArrayList<>();
 		this.ratingProm = 0;
+		this.calificacion = -1;
 	}
 
 	public String getDescripcion() {
@@ -189,5 +192,11 @@ public abstract class Actividad implements Serializable{
 
 	public void setDuracion(double duracion) {
 		this.duracion = duracion;
+	}
+	public double getCalificacion() {
+		return calificacion;
+	}
+	public void setCalificacion(double calificacion) {
+		this.calificacion = calificacion;
 	}
 }
