@@ -88,6 +88,7 @@ public class CrearActividades {
 
             examenEsperado = new Examen(descripcionEx, objetivoEx, nivelDificultadEx, duracionEx, fechaLimEx, obligatoriaEx, preguntasEx);
             
+            reseñaEsperada = new Reseña(descripcionEx);
             
     }
 

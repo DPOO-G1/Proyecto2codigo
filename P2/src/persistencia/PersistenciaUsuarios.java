@@ -21,6 +21,14 @@ public class PersistenciaUsuarios {
             e.printStackTrace();
         }
     }
+    
+    public static void borrarDatos () {
+        try (FileOutputStream fos = new FileOutputStream(FILE_NAME)) {
+            fos.write(new byte[0]);
+        } catch (IOException e) {
+            System.err.println("Error eliminando los Usuarios:" + e.getMessage());
+        }
+    }    
 
     @SuppressWarnings("unchecked")
     public static Map<String, Usuario> cargarUsuarios() {
@@ -32,7 +40,7 @@ public class PersistenciaUsuarios {
             System.out.println("Desea crear un archivo vacío?\n1. Si\n2. No");
             Scanner scanner = new Scanner(System.in);
             int opcion = scanner.nextInt();
-            scanner.nextLine(); // Clear the newline character
+            scanner.nextLine();
 
             if (opcion == 1) {
                
@@ -58,7 +66,6 @@ public class PersistenciaUsuarios {
         return usuarios;
     }
 
-    // Optional: method to add a single user and save the entire map
     public static void agregarUsuario(String nombre, String correo, String password, String tipoUsuario, Map<String, Usuario> usuarios) {
         Usuario usuario;
         if (tipoUsuario.equals("Estudiante")) {
@@ -70,6 +77,6 @@ public class PersistenciaUsuarios {
             return;
         }
         usuarios.put(correo, usuario);
-        guardarUsuarios(usuarios); // Save the updated map
+        guardarUsuarios(usuarios); 
     }
 }

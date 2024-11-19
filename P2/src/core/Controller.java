@@ -56,9 +56,6 @@ public class Controller {
 		}
 	
 
-
-
-
 	public static Map<String,Usuario> cargarPersistenciaUsuarios() {
 	
 	return (HashMap<String, Usuario>) PersistenciaUsuarios.cargarUsuarios();
@@ -73,6 +70,19 @@ public class Controller {
 	
 	}
 		
+	public static void borrarDatosPersistenciaLearningPaths() {
+		
+		PersistenciaLearningPaths.borrarDatos();
+		
+	}
+	
+	public static void borrarDatosPersistenciaUsuarios() {
+		
+		PersistenciaUsuarios.borrarDatos();
+		
+	}
+	
+	
 	public static void añadirLearningPath(Map<String,Usuario> mapaUsuarios,Map<String, LearningPath> mapaLearningPaths, String tituloLP,Usuario usuario) {
 	 
 	if (mapaLearningPaths.containsKey(tituloLP)) {

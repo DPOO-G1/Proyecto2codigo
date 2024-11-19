@@ -11,20 +11,29 @@ import usuarios.Profesor;
 import usuarios.Usuario;
 
 public class PersistenciaLearningPaths {
+ 
+	private static final String FILE_NAME = "learningPaths.ser";
 
-    private static final String FILE_NAME = "learningPaths.ser";
-
-    public static void guardarLearningPaths(Map<String, LearningPath> mapaLearningPaths) {
+    @SuppressWarnings("unchecked")
+    public static void guardarLearningPaths(Map<String, LearningPath> learningpaths) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            out.writeObject(mapaLearningPaths);
-            System.out.println("Learning paths guardados exitosamente.");
+            out.writeObject(learningpaths);
+            System.out.println("LearningPaths guardados exitosamente.");
         } catch (IOException e) {
-            System.out.println("Ocurrió un error al guardar los learning paths.");
+            System.out.println("Ocurrió un error al guardar los learningPaths.");
             e.printStackTrace();
         }
     }
-
-    @SuppressWarnings("unchecked")
+    
+    public static void borrarDatos () {
+        try (FileOutputStream fos = new FileOutputStream(FILE_NAME)) {
+            fos.write(new byte[0]);
+        } catch (IOException e) {
+            System.err.println("Error eliminando los LearningPaths:" + e.getMessage());
+        }
+    	
+    }    
+    
     public static Map<String, LearningPath> cargarLearningPaths(Map<String, Usuario> usuarios) {
         Map<String, LearningPath> mapaLearningPaths = new HashMap<>();
         File file = new File(FILE_NAME);
@@ -94,4 +103,5 @@ public class PersistenciaLearningPaths {
     public static LocalDate convertirFecha(String fecha) {
         return LocalDate.parse(fecha);
     }
+
 }
